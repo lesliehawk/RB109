@@ -1,17 +1,73 @@
-# Mortgage Calculator
+require "yaml"
+MSG = YAML.load_file("mortgage_calc_messages.yml")
+
+def clear_screen
+  system('clear')
+end
 
 def prompt(message)
   puts(">> #{message}")
 end
 
-def comma_format_number(number) # to insert commas in numbers
+def comma_format_number(number) # inserts commas in long numbers
   number.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse
 end
 
-# I tried to refactor this logic into a loop,
-# but the loop/until/times/etc. loops I tried broke the feature
-# so I kept the more verbose logic.
-def calculating
+def greeting
+  prompt(MSG["greeting"])
+  sleep(2)
+end
+
+def valid_number?(input)
+  input == input.to_i.to_s && input.to_i > 0
+end
+
+def get_loan_amount
+  clear_screen
+  loan_amount = ''
+  loop do
+    puts
+    prompt(MSG["loan_amount"])
+    loan_amount = gets.chomp
+    break if valid_number?(loan_amount)
+    prompt(MSG["positive_number"])
+  end
+  loan_amount.to_i
+end
+
+def valid_apr?(input)
+  (input == input.to_i.to_s || input == input.to_f.to_s) && input.to_f >= 0
+end
+
+def get_apr
+  clear_screen
+  apr = ''
+  loop do
+    puts
+    prompt(MSG["apr"])
+    apr = gets.chomp
+    break if valid_apr?(apr)
+    prompt(MSG["non_negative"])
+  end
+  apr.to_f
+end
+
+def get_loan_duration
+  clear_screen
+  loan_period = ''
+  loop do
+    puts
+    prompt(MSG["loan_duration"])
+    loan_period = gets.chomp
+    break if valid_number?(loan_period)
+    prompt(MSG["positive_number"])
+  end
+  loan_period.to_i
+end
+
+def calculating_animation
+  clear_screen
+  puts
   sleep(0.2)
   print "\r" + "Calculating."
   sleep(0.4)
@@ -23,71 +79,65 @@ def calculating
   sleep(0.4)
 end
 
-loop do
-  puts
-  prompt("Welcome to Mortgage Calculator! <<")
-  puts
-  prompt("What is the mortgage amount?")
-
-  loan_amount = ''
-  loop do
-    loan_amount = gets.chomp.to_i
-    if loan_amount <= 0
-      prompt("Please enter a valid number.")
-    else
-      break
-    end
-  end
-
-  prompt("What is the Annual Percentage Rate?")
-
-  apr = ''
-  loop do
-    apr = gets.chomp.to_f
-    if apr <= 0
-      prompt("Please enter a positive number.")
-    else
-      break
-    end
-  end
-
-  prompt("What is the mortgage period (years)?")
-
-  loan_duration = ''
-  loop do
-    loan_duration = gets.chomp.to_i
-    if loan_duration <= 0
-      prompt("Please enter a positive whole number.")
-    else
-      break
-    end
-  end
-
+def monthly_amount(loan_amount, apr, loan_duration)
   monthly_interest_rate = apr / 100 / 12
-
   loan_duration_months = loan_duration * 12
-
-  monthly_payment = loan_amount * (monthly_interest_rate /
-    (1 - (1 + monthly_interest_rate)**(-loan_duration_months))).to_f.round(2)
-
-  calculating
-
-  puts
-  puts "----------------------------------------"
-  prompt("Loan Amount: $#{comma_format_number(loan_amount)}")
-  prompt("APR: #{apr.round(3)}%")
-  prompt("Loan Duration: #{loan_duration} years")
-  puts "----------------------------------------"
-  prompt("Monthly Payment: $#{comma_format_number(monthly_payment)}")
-  puts
-
-  prompt("Calculate another mortgage? (Y/N)")
-  answer = gets.chomp.downcase
-
-  break unless answer.start_with?('y')
+  monthly_payment = (loan_amount * (monthly_interest_rate / (1 - (1 + monthly_interest_rate)**(-loan_duration_months)))).round(2)
 end
 
-prompt("Thank you for using Mortgage Calculator!")
-puts
-prompt("Good bye!")
-puts
+def display_loan_info(loan_amt, int_rate, loan_period, payment)
+  clear_screen
+  puts "----------------------------------------"
+  prompt("Loan Amount: $#{comma_format_number(loan_amt)}")
+  prompt("APR: #{int_rate.round(3)}%")
+  prompt("Loan Duration: #{loan_period} years")
+  puts "----------------------------------------"
+  prompt("Monthly Payment: $#{comma_format_number(payment)}")
+  puts
+  sleep(2)
+end
+
+def go_again?
+  prompt(MSG["another_calc"])
+  input = ''
+  loop do
+    input = gets.chomp.downcase
+    break if ['yes', 'y', 'no', 'n'].include?(input)
+    prompt(MSG["invalid_answer"])
+  end
+  input[0] == 'y'
+end
+
+def send_off
+  clear_screen
+  puts
+  prompt(MSG["thank_you"])
+  prompt(MSG["good_bye"])
+  puts
+end
+
+clear_screen
+
+greeting
+
+loop do
+  clear_screen
+
+  loan_amount = get_loan_amount
+
+  apr = get_apr
+
+  loan_duration = get_loan_duration
+
+  monthly_payment = monthly_amount(loan_amount, apr, loan_duration)
+
+  calculating_animation
+
+  display_loan_info(loan_amount, apr, loan_duration, monthly_payment)
+
+  break unless go_again?
+
+  clear_screen
+end
+
+send_off
