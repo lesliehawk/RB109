@@ -4,8 +4,6 @@ positive_number: "Please enter a positive whole number."
 apr: "What is the Annual Percentage Rate?"
 non_negative: "Please enter a non-negative number or add a leading zero to the decimal."
 loan_duration: "What is the mortgage period (years)?"
-
-
 another_calc: "Calculate another mortgage? (Y/N)"
 invalid_answer: "Invalid answer. Please put yes or no (Y/N)."
 thank_you: "Thank you for using Mortgage Calculator!"
