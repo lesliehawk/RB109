@@ -82,7 +82,8 @@ end
 def monthly_amount(loan_amount, apr, loan_duration)
   monthly_interest_rate = apr / 100 / 12
   loan_duration_months = loan_duration * 12
-  monthly_payment = (loan_amount * (monthly_interest_rate / (1 - (1 + monthly_interest_rate)**(-loan_duration_months)))).round(2)
+  (loan_amount * (monthly_interest_rate /
+    (1 - (1 + monthly_interest_rate)**(-loan_duration_months)))).round(2)
 end
 
 def display_loan_info(loan_amt, int_rate, loan_period, payment)
