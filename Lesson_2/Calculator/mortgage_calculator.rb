@@ -34,7 +34,7 @@ def get_loan_amount
     break if valid_positive_decimal?(loan_amount)
     prompt(MSG["positive_decimal"])
   end
-    loan_amount.to_f
+  loan_amount.to_f
 end
 
 def valid_apr?(input)
@@ -88,9 +88,12 @@ end
 def monthly_amount(loan_amount, apr, loan_duration)
   monthly_interest_rate = apr / 100 / 12
   loan_duration_months = loan_duration * 12
-  monthly_interest_rate == 0 ? (loan_amount / loan_duration_months).round(2) :
+  if monthly_interest_rate == 0
+    (loan_amount / loan_duration_months).round(2)
+  else
     (loan_amount * (monthly_interest_rate /
       (1 - (1 + monthly_interest_rate)**(-loan_duration_months)))).round(2)
+  end
 end
 
 def display_loan_info(loan_amt, int_rate, loan_period, payment)
