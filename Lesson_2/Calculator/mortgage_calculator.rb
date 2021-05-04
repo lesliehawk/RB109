@@ -10,7 +10,9 @@ def prompt(message)
 end
 
 def comma_format_number(number) # inserts commas in long numbers
-  number.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse
+  number = number.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse
+  number << '0' if number[-2..-1] == ".0"
+  number
 end
 
 def greeting
@@ -18,7 +20,7 @@ def greeting
   sleep(2)
 end
 
-def valid_number?(input)
+def valid_positive_number?(input)
   input == input.to_i.to_s && input.to_i > 0
 end
 
@@ -28,14 +30,14 @@ def get_loan_amount
   loop do
     puts
     prompt(MSG["loan_amount"])
-    loan_amount = gets.chomp
-    break if valid_number?(loan_amount)
-    prompt(MSG["positive_number"])
+    loan_amount = gets.strip.chomp
+    break if valid_decimal_number?(loan_amount)
+    prompt(MSG["non_negative"])
   end
-  loan_amount.to_i
+    loan_amount.to_f
 end
 
-def valid_apr?(input)
+def valid_decimal_number?(input)
   (input == input.to_i.to_s || input == input.to_f.to_s) && input.to_f >= 0
 end
 
@@ -45,8 +47,8 @@ def get_apr
   loop do
     puts
     prompt(MSG["apr"])
-    apr = gets.chomp
-    break if valid_apr?(apr)
+    apr = gets.strip.chomp
+    break if valid_decimal_number?(apr)
     prompt(MSG["non_negative"])
   end
   apr.to_f
@@ -58,8 +60,8 @@ def get_loan_duration
   loop do
     puts
     prompt(MSG["loan_duration"])
-    loan_period = gets.chomp
-    break if valid_number?(loan_period)
+    loan_period = gets.strip.chomp
+    break if valid_positive_number?(loan_period)
     prompt(MSG["positive_number"])
   end
   loan_period.to_i
@@ -82,8 +84,9 @@ end
 def monthly_amount(loan_amount, apr, loan_duration)
   monthly_interest_rate = apr / 100 / 12
   loan_duration_months = loan_duration * 12
-  (loan_amount * (monthly_interest_rate /
-    (1 - (1 + monthly_interest_rate)**(-loan_duration_months)))).round(2)
+  monthly_interest_rate == 0 ? (loan_amount / loan_duration_months).round(2) :
+    (loan_amount * (monthly_interest_rate /
+      (1 - (1 + monthly_interest_rate)**(-loan_duration_months)))).round(2)
 end
 
 def display_loan_info(loan_amt, int_rate, loan_period, payment)
@@ -102,7 +105,7 @@ def go_again?
   prompt(MSG["another_calc"])
   input = ''
   loop do
-    input = gets.chomp.downcase
+    input = gets.strip.chomp.downcase
     break if ['yes', 'y', 'no', 'n'].include?(input)
     prompt(MSG["invalid_answer"])
   end
