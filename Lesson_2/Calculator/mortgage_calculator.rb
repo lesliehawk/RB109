@@ -20,8 +20,8 @@ def greeting
   sleep(2)
 end
 
-def valid_positive_number?(input)
-  input == input.to_i.to_s && input.to_i > 0
+def valid_positive_decimal?(input)
+  (input == input.to_i.to_s || input == input.to_f.to_s) && input.to_f > 0
 end
 
 def get_loan_amount
@@ -31,13 +31,13 @@ def get_loan_amount
     puts
     prompt(MSG["loan_amount"])
     loan_amount = gets.strip.chomp
-    break if valid_decimal_number?(loan_amount)
-    prompt(MSG["non_negative"])
+    break if valid_positive_decimal?(loan_amount)
+    prompt(MSG["positive_decimal"])
   end
     loan_amount.to_f
 end
 
-def valid_decimal_number?(input)
+def valid_apr?(input)
   (input == input.to_i.to_s || input == input.to_f.to_s) && input.to_f >= 0
 end
 
@@ -48,10 +48,14 @@ def get_apr
     puts
     prompt(MSG["apr"])
     apr = gets.strip.chomp
-    break if valid_decimal_number?(apr)
+    break if valid_apr?(apr)
     prompt(MSG["non_negative"])
   end
   apr.to_f
+end
+
+def valid_positive_number?(input)
+  input == input.to_i.to_s && input.to_i > 0
 end
 
 def get_loan_duration
