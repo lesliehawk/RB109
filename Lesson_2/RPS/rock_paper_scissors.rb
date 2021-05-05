@@ -82,12 +82,20 @@ def display_results(player, computer, number)
   puts
   if win?(player, computer)
     prompt("YOU win round #{number}!")
-    :player
   elsif win?(computer, player)
     prompt("COMPUTER wins round #{number}!")
-    :computer
   else
     prompt("Round #{number} is a tie!")
+  end
+end
+
+def return_result(player, computer, number)
+  if win?(player, computer)
+    :player
+  elsif win?(computer, player)
+    :computer
+  else
+    nil
   end
 end
 
@@ -157,7 +165,9 @@ loop do
 
     round += 1
 
-    result = display_results(choice, computer_choice, round)
+    display_results(choice, computer_choice, round)
+
+    result = return_result(choice, computer_choice, round)
 
     increment_score(result, scoreboard)
 
