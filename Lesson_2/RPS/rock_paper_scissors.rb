@@ -167,7 +167,7 @@ loop do
 
     display_results(choice, computer_choice, round)
 
-    result = return_result(choice, computer_choice, round)
+    result = result(choice, computer_choice, round)
 
     increment_score(result, scoreboard)
 
