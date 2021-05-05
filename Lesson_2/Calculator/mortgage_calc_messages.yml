@@ -1,4 +1,16 @@
 greeting: "Welcome to Mortgage Calculator! <<"
+instructions: "Scissors cuts Paper,
+              Paper covers Rock,
+              Rock crushes Lizard,
+              Lizard poisons Spock,
+              Spock smashes Scissors,
+              Scissors decapitates Lizard,
+              Lizard eats Paper,
+              Paper disproves Spock,
+              Spock vaporizes Rock,
+              and as it always has,
+              Rock crushes Scissors."
+              -- Sheldon, BIG BANG THEORY
 loan_amount: "What is the mortgage amount?"
 positive_decimal: "Please enter a positive number."
 apr: "What is the Annual Percentage Rate? (Example: Enter 2.5 for 2.5%)"
