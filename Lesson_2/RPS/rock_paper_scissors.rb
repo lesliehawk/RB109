@@ -69,9 +69,9 @@ end
 
 def display_choices(choice, computer_choice)
   prompt("You chose:      #{choice.capitalize}")
-  # sleep(0.8)
+  sleep(0.8)
   prompt("Computer chose: #{computer_choice.capitalize}")
-  # sleep(0.7)
+  sleep(0.7)
 end
 
 def win?(first, second)
