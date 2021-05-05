@@ -89,7 +89,7 @@ def display_results(player, computer, number)
   end
 end
 
-def return_result(player, computer, number)
+def result(player, computer, number)
   if win?(player, computer)
     :player
   elsif win?(computer, player)
