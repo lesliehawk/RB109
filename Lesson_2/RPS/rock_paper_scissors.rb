@@ -24,12 +24,12 @@ def prompt(message)
   puts ">> #{message}"
 end
 
-def greeting
+def display_greeting
   puts "*** Welcome to Rock, Paper, Scissors, Lizard, Spock! ***"
   puts
 end
 
-def instructions
+def display_instructions
   prompt("Here are the rules:")
   puts
   puts <<-MSG
@@ -55,7 +55,7 @@ def ready?
   input[0] == 'y'
 end
 
-def get_choice
+def get_player_choice
   choice = ''
   prompt("Choose one: #{VALID_CHOICES.keys.join(', ')}")
   loop do
@@ -65,6 +65,10 @@ def get_choice
     VALID_CHOICES.key?(choice) ? break : prompt("That's not a valid choice.")
   end
   choice
+end
+
+def get_computer_choice
+  VALID_CHOICES.keys.sample
 end
 
 def display_choices(choice, computer_choice)
@@ -78,29 +82,32 @@ def win?(first, second)
   WINNING_COMBOS[first].include?(second)
 end
 
-def display_results(player, computer, number)
-  puts
-  if win?(player, computer)
-    prompt("YOU win round #{number}!")
-  elsif win?(computer, player)
-    prompt("COMPUTER wins round #{number}!")
-  else
-    prompt("Round #{number} is a tie!")
-  end
-end
-
-def result(player, computer, number)
+def determine_round_result(player, computer)
   if win?(player, computer)
     :player
   elsif win?(computer, player)
     :computer
   else
-    nil
+    :tie
+  end
+end
+
+def display_round_result(winner, round_number)
+  case winner
+  when :player
+    puts
+    prompt("YOU win round #{round_number}!")
+  when :computer
+    puts
+    prompt("COMPUTER wins round #{round_number}!")
+  when :tie
+    puts
+    prompt("Round #{round_number} is a tie!")
   end
 end
 
 def increment_score(result, scorebrd)
-  result.nil? ? scorebrd : scorebrd[result] += 1
+  result == :tie ? scorebrd : scorebrd[result] += 1
 end
 
 def display_scoreboard(scorebrd)
@@ -144,30 +151,33 @@ end
 
 clear_screen
 
-greeting
+display_greeting
 
-instructions
+display_instructions
 
 loop do
   break unless ready?
 
   clear_screen
-  scoreboard = { player: 0, computer: 0 }
-  round = 0
-  loop do
-    choice = get_choice
 
-    computer_choice = VALID_CHOICES.keys.sample
+  scoreboard = { player: 0, computer: 0 }
+
+  round = 0
+
+  loop do
+    player_choice = get_player_choice
+
+    computer_choice = get_computer_choice
 
     clear_screen
 
-    display_choices(choice, computer_choice)
+    display_choices(player_choice, computer_choice)
 
     round += 1
 
-    display_results(choice, computer_choice, round)
+    result = determine_round_result(player_choice, computer_choice)
 
-    result = result(choice, computer_choice, round)
+    display_round_result(result, round)
 
     increment_score(result, scoreboard)
 
