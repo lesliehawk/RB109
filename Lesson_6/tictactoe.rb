@@ -168,7 +168,7 @@ def detect_winner(brd)
       return 'Computer'
     end
   end
-  nil # passes to someone_won? That will turn nil into a false by applying !!
+  nil
 end
 
 def update_scoreboard(scorebrd, winner)
