@@ -6,6 +6,13 @@ WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
                 [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # cols
                 [[1, 5, 9], [3, 5, 7]]              # diags
 
+WINNING_SCORE = 5
+BOARD_SIZE = 3
+CENTER_SQUARE = 5
+
+ANSWER = ['y', 'yes', 'n', 'no']
+CHOICE = ['p', 'player', 'c', 'computer']
+
 def prompt(msg)
   puts "=> #{msg}"
 end
@@ -52,32 +59,43 @@ def coin_toss
   toss_winner
 end
 
-def player_choice
+def valid_choice
   choice = ''
   loop do
     prompt "Who should go first? (P)layer or (C)omputer?"
-    answer = gets.chomp.downcase
-    if answer[0] == 'p'
-      choice = "Player"
-    elsif answer[0] == 'c'
-      choice = "Computer"
-    else
-      prompt "Sorry, that is not a valid choice."
-    end
-    break if choice == "Player" || choice == "Computer"
+    choice = gets.chomp.downcase
+    break if CHOICE.include?(choice)
+    prompt "Sorry, that is not a valid choice."
   end
-  prompt "Player chose #{choice.upcase} to go first."
   choice
+end
+
+def player_choice(vld_choice)
+  vld_choice == 'p' || vld_choice == 'player' ? 'Player' : 'Computer'
 end
 
 def computer_choice
-  choice = ["Player", "Computer"].sample
-  prompt "Computer chose #{choice.upcase} to go first."
-  choice
+  ["Player", "Computer"].sample
 end
 
-def who_goes_first(coin_toss)
-  coin_toss == "Player" ? player_choice : computer_choice
+def display_who_goes_first(opponent, choice)
+  prompt "#{opponent} chose #{choice.upcase} to go first."
+end
+
+def who_goes_first(coin_winner)
+  coin_winner == "Player" ? player_choice(valid_choice) : computer_choice
+end
+
+def continue_to_play?(question)
+  choice = ''
+  loop do
+    puts ''
+    prompt "#{question} (y or n)"
+    choice = gets.chomp.downcase
+    break if ANSWER.include?(choice)
+    prompt "Sorry, that is not a valid choice."
+  end
+  choice == 'y' || choice == 'yes'
 end
 
 def joinor(arr, separator=', ', conjunction='or')
@@ -90,54 +108,49 @@ def empty_squares(brd)
   brd.keys.select { |num| brd[num] == INITIAL_MARKER }
 end
 
+def get_whole_number(brd)
+  answer = ''
+  loop do
+    prompt "Choose a square (#{joinor(empty_squares(brd))}):"
+    answer = gets.chomp
+    break if answer.scan(/\D/).empty?
+    prompt "Please input a  whole number."
+  end
+  answer.to_i
+end
+
 def player_places_piece!(brd)
   square = ''
   loop do
-    prompt "Choose a square (#{joinor(empty_squares(brd))}):"
-    square = gets.chomp.to_i
+    square = get_whole_number(brd)
     break if empty_squares(brd).include?(square)
     prompt "Sorry, that is not a valid choice."
   end
   brd[square] = PLAYER_MARKER
 end
 
-def immediate_win(brd)
-  win = []
+def strategic_move(brd, marker)
+  move = []
 
   WINNING_LINES.each do |line|
-    if brd.values_at(*line).count(COMPUTER_MARKER) == 2 &&
+    if brd.values_at(*line).count(marker) == (BOARD_SIZE - 1) &&
        brd.values_at(*line).any?(INITIAL_MARKER)
       line.each do |square|
-        win << square if brd[square] == INITIAL_MARKER
+        move << square if brd[square] == INITIAL_MARKER
       end
     end
   end
 
-  win.empty? ? false : win.sample
-end
-
-def immediate_threat(brd)
-  threat = []
-
-  WINNING_LINES.each do |line|
-    if brd.values_at(*line).count(PLAYER_MARKER) == 2 &&
-       brd.values_at(*line).any?(INITIAL_MARKER)
-      line.each do |square|
-        threat << square if brd[square] == INITIAL_MARKER
-      end
-    end
-  end
-
-  threat.empty? ? false : threat.sample
+  move.empty? ? false : move.sample
 end
 
 def computer_places_piece!(brd)
-  square = if immediate_win(brd)
-             immediate_win(brd)
-           elsif immediate_threat(brd)
-             immediate_threat(brd)
-           elsif brd[5] == INITIAL_MARKER
-             5
+  square = if strategic_move(brd, COMPUTER_MARKER)
+             strategic_move(brd, COMPUTER_MARKER)
+           elsif strategic_move(brd, PLAYER_MARKER)
+             strategic_move(brd, PLAYER_MARKER)
+           elsif brd[CENTER_SQUARE] == INITIAL_MARKER
+             CENTER_SQUARE
            else
              empty_squares(brd).sample
            end
@@ -156,19 +169,19 @@ def board_full?(brd)
   empty_squares(brd).empty?
 end
 
-def someone_won?(brd)
-  !!detect_winner(brd)
+def round_winner?(brd)
+  !!detect_round_winner(brd)
 end
 
-def detect_winner(brd)
+def detect_round_winner(brd)
   WINNING_LINES.each do |line|
-    if brd.values_at(*line).count(PLAYER_MARKER) == 3
+    if brd.values_at(*line).count(PLAYER_MARKER) == BOARD_SIZE
       return 'Player'
-    elsif brd.values_at(*line).count(COMPUTER_MARKER) == 3
+    elsif brd.values_at(*line).count(COMPUTER_MARKER) == BOARD_SIZE
       return 'Computer'
     end
   end
-  nil
+  nil # passes to someone_won? That will turn nil into a false by applying !!
 end
 
 def update_scoreboard(scorebrd, winner)
@@ -176,16 +189,16 @@ def update_scoreboard(scorebrd, winner)
 end
 
 def match_winner?(scorebrd)
-  scorebrd.values.any?(5)
+  scorebrd.values.any?(WINNING_SCORE)
 end
 
 def detect_match_winner(scorebrd)
-  scorebrd["Player"] == 5 ? "Player" : "Computer"
+  scorebrd["Player"] == WINNING_SCORE ? "Player" : "Computer"
 end
 
 def display_match_points(scorebrd)
   puts ""
-  puts "Match Scoreboard: First to 5 wins the match!"
+  puts "Match Scoreboard: First to #{WINNING_SCORE} wins the match!"
   puts ""
   puts "Player: #{scorebrd['Player']}"
   puts "Computer: #{scorebrd['Computer']}"
@@ -198,12 +211,12 @@ loop do
 
   welcome
 
-  current_player = who_goes_first(coin_toss)
+  toss_winner = coin_toss
+  current_player = who_goes_first(toss_winner)
 
-  puts ''
-  prompt "Ready to play? (y or n)"
-  answer = gets.chomp
-  break unless answer.downcase.start_with?('y')
+  display_who_goes_first(toss_winner, current_player)
+
+  break unless continue_to_play?("Ready to play?")
 
   loop do
     board = initialize_board
@@ -213,14 +226,14 @@ loop do
 
       place_piece!(board, current_player)
       current_player = alternate_player(current_player)
-      break if someone_won?(board) || board_full?(board)
+      break if round_winner?(board) || board_full?(board)
     end
 
     display_board(board)
 
-    if someone_won?(board)
-      prompt "#{detect_winner(board)} won!"
-      update_scoreboard(scoreboard, detect_winner(board))
+    if round_winner?(board)
+      prompt "#{detect_round_winner(board)} won!"
+      update_scoreboard(scoreboard, detect_round_winner(board))
     else
       prompt "It's a tie!"
     end
@@ -232,14 +245,10 @@ loop do
       break
     end
 
-    prompt "Play again? (y or n)"
-    answer = gets.chomp
-    break unless answer.downcase.start_with?('y')
+    break unless continue_to_play?("Continue to next round?")
   end
 
-  prompt "Play another match? (y or n)"
-  answer = gets.chomp
-  break unless answer.downcase.start_with?('y')
+  break unless continue_to_play?("Play another match?")
 end
 
 prompt "Thanks for playing Tic Tac Toe! Good bye!"
