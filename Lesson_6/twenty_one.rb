@@ -80,6 +80,7 @@ def modify_ace(hand, total_sum)
   values.select { |value| value == "A" }.count.times do
     total_sum -= 10 if total_sum > 21
   end
+
   total_sum
 end
 
