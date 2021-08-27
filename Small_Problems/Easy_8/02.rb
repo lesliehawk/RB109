@@ -11,13 +11,13 @@
 
 puts "* Welcome to Madlibs! *"
 puts
-puts "Enter a noun:"
+puts "Enter a noun (person, place or thing):"
 noun = gets.chomp
-puts "Enter a verb:"
+puts "Enter a verb (action, state, or occurrence):"
 verb = gets.chomp
-puts "Enter a adjective:"
+puts "Enter a adjective (attribute):"
 adjective = gets.chomp
-puts "Enter a adverb:"
+puts "Enter a adverb (describes a verb, ie sings loudly (verb, adverb):"
 adverb = gets.chomp
 
 puts "Please #{verb} a #{adjective} #{noun} #{adverb}. Thank you."
@@ -28,3 +28,15 @@ puts "Please #{verb} a #{adjective} #{noun} #{adverb}. Thank you."
 # Enter an adverb: quickly
 
 # Do you walk your blue dog quickly? That's hilarious!
+
+# Luke Carlson's great answer:
+
+# words = {noun: '', verb: '', adjective: '', adverb: ''}
+
+# words.each_key do |key|
+#   puts ">> #{key} please: "
+#   words[key] = gets.chomp
+# end
+
+# puts "The #{words[:noun]} likes to #{words[:verb]} "\
+# "#{words[:adverb]} in the #{words[:adjective]} moonlight."

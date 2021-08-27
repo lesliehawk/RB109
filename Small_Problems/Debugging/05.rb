@@ -31,15 +31,16 @@ deck.keys.each do |suit|
   cards.shuffle!
   player_cards << cards.pop
 end
-p player_cards
 
 # Determine the score of the remaining cards in the deck
 
 sum = deck.reduce(0) do |sum, (_, remaining_cards)|
-  remaining_cards.map do |card|
+  remaining_cards.map! do |card|
+  #map --> #map! so remaining_cards has all integers to #sum on line 45
     score(card)
   end
-
+p sum
+p remaining_cards
   sum += remaining_cards.sum
 end
 
